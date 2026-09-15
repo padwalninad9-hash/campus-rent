@@ -8,11 +8,13 @@ import {
   MapPin,
   ShieldCheck,
   Star,
+  CalendarClock,
 } from "lucide-react";
 
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import DateRangePicker from "../components/DateRangePicker";
+import ReportUserButton from "../components/ReportUserButton";
 
 function daysBetween(start, end) {
   if (!start || !end) return 0;
@@ -30,6 +32,7 @@ export default function ItemDetail() {
 
   const [item, setItem] = useState(null);
   const [owner, setOwner] = useState(null);
+  const [availability, setAvailability] = useState(null);
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState("");
@@ -68,6 +71,8 @@ export default function ItemDetail() {
           .single();
 
         setOwner(ownerData);
+        const { data: availabilityData } = await supabase.rpc("get_item_availability", { p_item_id: itemData.id });
+        setAvailability(Array.isArray(availabilityData) ? availabilityData[0] : availabilityData);
       }
 
       setLoading(false);
@@ -102,19 +107,11 @@ export default function ItemDetail() {
 
     setBooking(true);
 
-    const { data, error: bookingErr } = await supabase
-      .from("bookings")
-      .insert({
-        item_id: item.id,
-        renter_id: user.id,
-        owner_id: item.owner_id,
-        start_date: dates.startDate,
-        end_date: dates.endDate,
-        total_amount: total,
-        status: "pending_payment",
-      })
-      .select()
-      .single();
+    const { data, error: bookingErr } = await supabase.rpc("create_rental_booking", {
+      p_item_id: item.id,
+      p_start_date: dates.startDate,
+      p_end_date: dates.endDate,
+    });
 
     setBooking(false);
 
@@ -123,7 +120,8 @@ export default function ItemDetail() {
       return;
     }
 
-    navigate(`/checkout/${data.id}`);
+    const createdBooking = Array.isArray(data) ? data[0] : data;
+    navigate(`/checkout/${createdBooking.id}`);
   }
 
   if (loading) {
@@ -252,6 +250,10 @@ export default function ItemDetail() {
                     {owner.rating_count || 0} Reviews
                   </div>
                 </div>
+
+                <div className="mt-4 border-t border-slate-100 pt-3">
+                  <ReportUserButton reportedUserId={item.owner_id} />
+                </div>
               </div>
             )}
           </div>
@@ -278,10 +280,13 @@ export default function ItemDetail() {
               <div className="rounded-3xl bg-white shadow-2xl border border-slate-200 p-6">
                 <h2 className="text-2xl font-bold mb-6">Reserve this item</h2>
 
+                {availability?.is_currently_rented && <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-sm text-amber-900"><div className="flex items-center gap-2 font-bold"><CalendarClock size={18} /> Currently rented</div><p className="mt-1 leading-5">This item is rented until {new Date(`${availability.rented_until}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long" })}. You can pre-order it from {new Date(`${availability.next_available_date}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long" })}.</p></div>}
+
                 <DateRangePicker
                   startDate={dates.startDate}
                   endDate={dates.endDate}
                   onChange={setDates}
+                  minDate={availability?.next_available_date}
                 />
 
                 {days > 0 && (
@@ -324,6 +329,8 @@ export default function ItemDetail() {
                     ? "Unavailable"
                     : booking
                     ? "Creating Booking..."
+                    : availability?.is_currently_rented
+                    ? "Pre-order for next availability"
                     : "Reserve Now"}
                 </button>
 

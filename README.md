@@ -71,10 +71,14 @@ supabase link --project-ref YOUR-PROJECT-REF
 supabase secrets set RAZORPAY_KEY_ID=rzp_test_xxxxx
 supabase secrets set RAZORPAY_KEY_SECRET=xxxxxxxxxxxx
 supabase secrets set RAZORPAY_WEBHOOK_SECRET=xxxxxxxxxxxx
+# optional — only needed if you wire up the risk-score cron job (see below)
+supabase secrets set RISK_CRON_SECRET=some-long-random-string
 
 supabase functions deploy create-razorpay-order
 supabase functions deploy verify-razorpay-payment
 supabase functions deploy razorpay-webhook --no-verify-jwt
+supabase functions deploy resolve-escrow
+supabase functions deploy recalculate-risk-scores
 ```
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected automatically —
@@ -82,6 +86,28 @@ you don't need to set those yourself.
 
 Your webhook URL for step 2 will be:
 `https://YOUR-PROJECT-REF.supabase.co/functions/v1/razorpay-webhook`
+
+### Testing payments — Razorpay test mode credentials
+
+With test API keys, Razorpay's Checkout widget never touches real money.
+Use these on the Checkout page (a booking with a deposit runs this twice —
+once for rent, once for the deposit):
+
+- **Test card**: `4111 1111 1111 1111`, any future expiry, any 3-digit CVV,
+  any name. OTP screen: enter `1221`.
+- **Test UPI**: VPA `success@razorpay` (always succeeds) or
+  `failure@razorpay` (always fails, useful for testing the failed-payment
+  path) — no real UPI app needed, Razorpay's test mode accepts these
+  directly.
+- Full list of test instruments (netbanking, wallets, international cards):
+  [Razorpay's test mode docs](https://razorpay.com/docs/payments/payments/test-mode/).
+
+To test a **deposit refund**: complete a booking's two-leg payment, have
+the owner mark it "ongoing" then "Mark returned" from **My Bookings** — that
+calls `resolve-escrow` (`action: "complete"`), which issues a real Razorpay
+test-mode refund for the deposit. To test a **dispute**, go to
+**Escrow admin** as an admin account and use "Flag dispute" / "Resolve
+dispute" on a held deposit instead.
 
 ## 4. Run the frontend
 
@@ -93,9 +119,39 @@ npm install
 npm run dev
 ```
 
-Open the printed `localhost` URL. To ship it, `npm run build` and deploy the
-`dist/` folder anywhere static (Vercel, Netlify, Cloudflare Pages, or
-Supabase Storage + a CDN).
+Open the printed `localhost` URL.
+
+## 5. Deploy to Vercel
+
+This repo has `frontend/` and `supabase/` side by side, so Vercel needs to
+know the app actually lives in `frontend/`:
+
+1. Push this repo to GitHub (see below), then in Vercel: **Add New →
+   Project** → import the repo.
+2. Under **Configure Project → Root Directory**, set it to `frontend`.
+   Vercel auto-detects the Vite framework preset from there — no build
+   command changes needed. `frontend/vercel.json` already has the SPA
+   rewrite (`/* → /index.html`) that client-side routing (React Router)
+   needs, so deep links like `/catalog` or `/item/:id` won't 404.
+3. Add environment variables (Project → Settings → Environment Variables),
+   for both **Production** and **Preview**:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+
+   These get baked in at build time (Vite convention), so set them *before*
+   the first deploy — changing them later requires a redeploy, not just a
+   restart.
+4. Deploy. Once you have your `*.vercel.app` URL (or a custom domain), go to
+   your Supabase project → **Authentication → URL Configuration** and add
+   it to both **Site URL** and **Redirect URLs** — otherwise the
+   email-confirmation and password-reset links (`AuthContext.jsx`'s
+   `emailRedirectTo` / `resetPasswordForEmail`) will point at `localhost`
+   and fail for anyone using the deployed site.
+
+The Supabase Edge Functions (`supabase/functions/*`) are **not** part of
+this Vercel deploy — they stay deployed to Supabase itself via
+`supabase functions deploy`, same as in step 3 above, regardless of where
+the frontend is hosted.
 
 ---
 

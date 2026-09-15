@@ -2,8 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
+import Explore from "./pages/Explore";
+import Catalog from "./pages/Catalog";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -17,6 +20,9 @@ import MyListings from "./pages/MyListings";
 import MyBookings from "./pages/MyBookings";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
+import AdminRisk from "./pages/AdminRisk";
+import Transactions from "./pages/Transactions";
+import AdminEscrow from "./pages/AdminEscrow";
 
 export default function App() {
   return (
@@ -25,6 +31,8 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/catalog" element={<Catalog />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -70,6 +78,30 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/risk"
+            element={
+              <AdminRoute>
+                <AdminRisk />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/escrow"
+            element={
+              <AdminRoute>
+                <AdminEscrow />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <Transactions />
               </ProtectedRoute>
             }
           />

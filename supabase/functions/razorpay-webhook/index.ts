@@ -7,8 +7,13 @@
 //
 // Set RAZORPAY_WEBHOOK_SECRET (the secret you set on the webhook in the dashboard)
 // as a separate secret from RAZORPAY_KEY_SECRET.
+//
+// Mirrors verify-razorpay-payment's per-leg logic (rent / deposit) via the
+// shared helpers, since either path can be the one that ends up marking a
+// leg paid first.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { finalizeBookingIfFullyPaid, holdDepositEscrow } from "../_shared/booking.ts";
 
 async function hmacHex(secret: string, message: string) {
   const key = await crypto.subtle.importKey(
@@ -40,19 +45,19 @@ Deno.serve(async (req) => {
 
     if (event.event === "payment.captured") {
       const payment = event.payload.payment.entity;
-      await supabase
-        .from("payments")
-        .update({ status: "paid", razorpay_payment_id: payment.id })
-        .eq("razorpay_order_id", payment.order_id);
 
       const { data: paymentRow } = await supabase
         .from("payments")
-        .select("booking_id")
+        .update({ status: "paid", razorpay_payment_id: payment.id })
         .eq("razorpay_order_id", payment.order_id)
-        .single();
+        .select("id, booking_id, type")
+        .maybeSingle();
 
       if (paymentRow) {
-        await supabase.from("bookings").update({ status: "confirmed" }).eq("id", paymentRow.booking_id);
+        if (paymentRow.type === "deposit") {
+          await holdDepositEscrow(supabase, paymentRow.id);
+        }
+        await finalizeBookingIfFullyPaid(supabase, paymentRow.booking_id);
       }
     }
 
@@ -67,7 +72,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ received: true }), {
       headers: { "Content-Type": "application/json" },
     });
-  } catch (e) {
+  } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message }), { status: 400 });
   }
 });
