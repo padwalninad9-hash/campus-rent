@@ -84,6 +84,13 @@ Deno.serve(async (req) => {
         .eq("status", "paid")
         .maybeSingle();
 
+      // Marking the rental returned is the source of truth for the booking
+      // lifecycle and must succeed regardless of what Razorpay does next — a
+      // transient refund failure here must not make it look like "mark
+      // returned" itself failed. The hold simply stays "held" if the refund
+      // doesn't go through; the admin escrow dashboard already provides a
+      // manual retry lever for exactly that case.
+      let depositRefund = "not_applicable";
       if (depositPayment) {
         const { data: hold } = await supabase
           .from("escrow_holds")
@@ -92,16 +99,23 @@ Deno.serve(async (req) => {
           .single();
 
         if (hold && hold.status === "held") {
-          await razorpayRefund(depositPayment.razorpay_payment_id, undefined); // full refund
-          await supabase
-            .from("escrow_holds")
-            .update({ status: "released", refund_amount: depositPayment.amount, released_at: new Date().toISOString() })
-            .eq("id", hold.id);
-          await supabase.from("payments").update({ status: "refunded" }).eq("id", depositPayment.id);
+          try {
+            await razorpayRefund(depositPayment.razorpay_payment_id, undefined); // full refund
+            await supabase
+              .from("escrow_holds")
+              .update({ status: "released", refund_amount: depositPayment.amount, released_at: new Date().toISOString() })
+              .eq("id", hold.id);
+            await supabase.from("payments").update({ status: "refunded" }).eq("id", depositPayment.id);
+            depositRefund = "released";
+          } catch (refundError: any) {
+            depositRefund = "failed: " + refundError.message;
+          }
+        } else {
+          depositRefund = hold?.status || "not_applicable";
         }
       }
 
-      return new Response(JSON.stringify({ success: true, status: "completed" }), {
+      return new Response(JSON.stringify({ success: true, status: "completed", deposit_refund: depositRefund }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
