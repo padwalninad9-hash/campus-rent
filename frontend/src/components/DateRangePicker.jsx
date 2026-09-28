@@ -8,7 +8,7 @@ export default function DateRangePicker({ startDate, endDate, onChange, minDate 
         <label className="text-xs font-mono text-ink/60 block mb-1">FROM</label>
         <input
           type="date"
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+          className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
           min={firstAvailableDate}
           value={startDate}
           onChange={(e) => onChange({ startDate: e.target.value, endDate })}
@@ -18,7 +18,7 @@ export default function DateRangePicker({ startDate, endDate, onChange, minDate 
         <label className="text-xs font-mono text-ink/60 block mb-1">TO</label>
         <input
           type="date"
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+          className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
           min={startDate || firstAvailableDate}
           value={endDate}
           onChange={(e) => onChange({ startDate, endDate: e.target.value })}

@@ -23,15 +23,15 @@ function FactorBreakdown({ factors }) {
   return (
     <div className="grid gap-2.5 sm:grid-cols-2">
       {Object.entries(factors || {}).map(([key, value]) => (
-        <div key={key} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+        <div key={key} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
             <span>{FACTOR_LABELS[key] || key}</span>
             <span>{value.points} / {value.max} pts</span>
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200">
             <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min(100, (value.points / value.max) * 100)}%` }} />
           </div>
-          <div className="mt-1.5 text-[11px] text-slate-500">
+          <div className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
             {Object.entries(value).filter(([k]) => k !== "points" && k !== "max").map(([k, v]) => `${k}: ${v}`).join(" · ")}
           </div>
         </div>
@@ -41,9 +41,9 @@ function FactorBreakdown({ factors }) {
 }
 
 function RiskTable({ rows, expandedId, onToggle }) {
-  if (!rows.length) return <p className="p-6 text-sm text-slate-500">No users scored yet.</p>;
+  if (!rows.length) return <p className="p-6 text-sm text-slate-500 dark:text-slate-400">No users scored yet.</p>;
   return (
-    <div className="divide-y divide-slate-100">
+    <div className="divide-y divide-slate-100 dark:divide-slate-800">
       {rows.map((row) => (
         <div key={row.user_id}>
           <button
@@ -52,15 +52,15 @@ function RiskTable({ rows, expandedId, onToggle }) {
             className="flex w-full items-center justify-between gap-4 px-5 py-3.5 text-left hover:bg-slate-50"
           >
             <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold text-slate-800">{row.profiles?.full_name || "Unnamed user"}</p>
+              <p className="truncate font-semibold text-slate-800 dark:text-slate-100">{row.profiles?.full_name || "Unnamed user"}</p>
               <p className="truncate text-xs text-slate-400">{row.profiles?.location || "No location on file"}</p>
             </div>
-            <span className="text-sm font-mono font-bold text-slate-700">{Number(row.score).toFixed(0)}</span>
+            <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-200">{Number(row.score).toFixed(0)}</span>
             <span className={`rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${LEVEL_STYLES[row.risk_level]}`}>{row.risk_level}</span>
             <ChevronDown size={16} className={`shrink-0 text-slate-400 transition-transform ${expandedId === row.user_id ? "rotate-180" : ""}`} />
           </button>
           {expandedId === row.user_id && (
-            <div className="border-t border-slate-100 bg-white px-5 py-4">
+            <div className="border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 px-5 py-4">
               <FactorBreakdown factors={row.factors} />
               <p className="mt-3 text-[11px] text-slate-400">Last recalculated {new Date(row.updated_at).toLocaleString()}</p>
             </div>
@@ -153,13 +153,13 @@ export default function AdminRisk() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="section-kicker">Admin</p>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Risk & fraud dashboard</h1>
-          <p className="mt-1 text-slate-500">Every score is a weighted, explainable breakdown — click a row to see why.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Risk & fraud dashboard</h1>
+          <p className="mt-1 text-slate-500 dark:text-slate-400">Every score is a weighted, explainable breakdown — click a row to see why.</p>
         </div>
         <button
           onClick={recalculateAll}
           disabled={recalculating}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-sm transition hover:border-indigo-300 hover:text-indigo-700 disabled:opacity-60"
         >
           {recalculating ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
           Recalculate all
@@ -175,10 +175,10 @@ export default function AdminRisk() {
         ) : (
           <div className="mt-3 space-y-2">
             {pending.map((booking) => (
-              <div key={booking.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white px-4 py-3">
+              <div key={booking.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white dark:bg-slate-800 px-4 py-3">
                 <div>
-                  <p className="font-semibold text-slate-800">{booking.items?.title || "Rental item"}</p>
-                  <p className="text-xs text-slate-500">Renter: {booking.renter?.full_name || "Unknown"} · {booking.start_date} → {booking.end_date} · ₹{Number(booking.total_amount).toFixed(0)}</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-100">{booking.items?.title || "Rental item"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Renter: {booking.renter?.full_name || "Unknown"} · {booking.start_date} → {booking.end_date} · ₹{Number(booking.total_amount).toFixed(0)}</p>
                 </div>
                 <div className="flex gap-2">
                   <button disabled={workingId === booking.id} onClick={() => approveBooking(booking.id)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60"><Check size={14} /> Approve</button>
@@ -190,8 +190,8 @@ export default function AdminRisk() {
         )}
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3.5 text-xs font-bold uppercase tracking-wide text-slate-400">
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 px-5 py-3.5 text-xs font-bold uppercase tracking-wide text-slate-400">
           <AlertTriangle size={14} /> All users by risk score
         </div>
         {loading ? (

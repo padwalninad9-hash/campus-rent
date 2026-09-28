@@ -17,7 +17,7 @@ export default function CategoryChips({
         ${
           activeId === null
             ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"
-            : "bg-white border border-slate-200 hover:border-indigo-400 hover:shadow-md"
+            : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:shadow-md"
         }`}
       >
         ✨ All
@@ -36,7 +36,7 @@ export default function CategoryChips({
           ${
             activeId === category.id
               ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg"
-              : "bg-white border border-slate-200 hover:border-indigo-400 hover:shadow-md"
+              : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:shadow-md"
           }`}
         >
           <span className="text-lg">

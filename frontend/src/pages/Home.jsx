@@ -4,6 +4,7 @@ import { ArrowRight, MapPin, Moon, Search, ShieldCheck, Sparkles, Sun } from "lu
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import CategoryChips from "../components/CategoryChips";
 import ItemCard from "../components/ItemCard";
 
@@ -14,6 +15,7 @@ const rise = {
 
 export default function Home() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
@@ -21,11 +23,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [kycStatus, setKycStatus] = useState(null);
   const [seasonIndex, setSeasonIndex] = useState(0);
-  const [manualNight, setManualNight] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState("Morning");
   const seasons = ["summer", "winter", "autumn", "spring", "rain"];
   const season = seasons[seasonIndex];
-  const isNight = manualNight || timeOfDay === "Night";
+  // Driven by the sitewide theme toggle now, not a page-local flag — this
+  // page's existing .is-night styling just comes along for free.
+  const isNight = theme === "dark";
 
   useEffect(() => {
     async function loadMarketplace() {
@@ -85,13 +88,13 @@ export default function Home() {
       <div className={`season-particles ${season}`} aria-hidden="true">
         {Array.from({ length: season === "rain" ? 30 : 18 }).map((_, index) => <i key={index} style={{ left: `${(index * 17) % 106}%`, animationDelay: `${-(index % 9) * 0.55}s`, animationDuration: `${3.2 + (index % 7) * 0.45}s` }} />)}
       </div>
-      {user && kycStatus !== "verified" && <section className="mx-auto max-w-7xl px-5 pt-5 sm:px-7"><div className="kyc-nudge"><div className="kyc-nudge-ring"><span>{kycStatus === "pending" ? "80" : "60"}<small>%</small></span></div><div className="min-w-0 flex-1"><p className="text-sm font-bold text-slate-900">{kycStatus === "pending" ? "Your verification is being reviewed" : "Your profile is 60% authenticated"}</p><p className="mt-1 text-sm text-slate-500">{kycStatus === "pending" ? "You’re almost there. We’ll update your profile after review." : "Complete the remaining 40% to become a Verified member."}</p><div className="kyc-nudge-bar"><i style={{ width: kycStatus === "pending" ? "80%" : "60%" }} /></div></div>{kycStatus !== "pending" && <Link to="/verify-identity" className="btn-primary shrink-0">Complete verification <ArrowRight size={17} /></Link>}</div></section>}
+      {user && kycStatus !== "verified" && <section className="mx-auto max-w-7xl px-5 pt-5 sm:px-7"><div className="kyc-nudge"><div className="kyc-nudge-ring"><span>{kycStatus === "pending" ? "80" : "60"}<small>%</small></span></div><div className="min-w-0 flex-1"><p className="text-sm font-bold text-slate-900 dark:text-white">{kycStatus === "pending" ? "Your verification is being reviewed" : "Your profile is 60% authenticated"}</p><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{kycStatus === "pending" ? "You’re almost there. We’ll update your profile after review." : "Complete the remaining 40% to become a Verified member."}</p><div className="kyc-nudge-bar"><i style={{ width: kycStatus === "pending" ? "80%" : "60%" }} /></div></div>{kycStatus !== "pending" && <Link to="/verify-identity" className="btn-primary shrink-0">Complete verification <ArrowRight size={17} /></Link>}</div></section>}
       <section className="hero-shell relative">
         <div className="hero-grid" />
         <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-14 sm:px-7 lg:pb-24 lg:pt-24">
           <div className="theme-controls theme-interactive">
-            <span>{manualNight ? "Night mode" : timeOfDay}</span>
-            <button type="button" onClick={() => setManualNight((current) => !current)} aria-pressed={isNight} aria-label="Toggle night mode" className="theme-interactive">
+            <span>{isNight ? "Night mode" : timeOfDay}</span>
+            <button type="button" onClick={toggleTheme} aria-pressed={isNight} aria-label="Toggle night mode" className="theme-interactive">
               {isNight ? <Sun size={17} /> : <Moon size={17} />}
             </button>
           </div>
@@ -103,7 +106,7 @@ export default function Home() {
               <motion.h1 variants={rise} className="hero-title mt-6">
                 Rent <span>anything.</span> Live more freely.
               </motion.h1>
-              <motion.p variants={rise} className="hero-copy mt-6 max-w-xl text-lg leading-8 text-slate-600">
+              <motion.p variants={rise} className="hero-copy mt-6 max-w-xl text-lg leading-8 text-slate-600 dark:text-slate-300">
                 Find the things you need for a day, a project, or your next adventure—directly from people nearby.
               </motion.p>
               <motion.div variants={rise} className="search-panel mt-9">
@@ -111,7 +114,7 @@ export default function Home() {
                 <input aria-label="Search rentals" value={search} onChange={(event) => setSearch(event.target.value)} onKeyDown={(event) => event.key === "Enter" && scrollToListings()} placeholder="Search cameras, cycles, books..." />
                 <button onClick={scrollToListings} className="btn-primary shrink-0">Explore <ArrowRight size={17} /></button>
               </motion.div>
-              <motion.div variants={rise} className="hero-proof mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
+              <motion.div variants={rise} className="hero-proof mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600 dark:text-slate-300">
                 <span className="inline-flex items-center gap-2"><ShieldCheck className="text-emerald-500" size={18} /> Verified rental community</span>
                 <span className="inline-flex items-center gap-2"><MapPin className="text-rose-500" size={18} /> Local pickup, no shipping</span>
               </motion.div>
@@ -122,7 +125,7 @@ export default function Home() {
                 <div className="showcase-top"><span>Rentify picks</span><span className="availability-dot">Available now</span></div>
                 <div className="showcase-image">📷<div className="image-shine" /></div>
                 <div className="mt-5 flex items-start justify-between gap-4"><div><p className="text-sm font-semibold text-indigo-600">Creative essentials</p><h2 className="mt-1 text-2xl font-bold tracking-tight">Make your next idea happen.</h2></div><span className="rounded-full bg-indigo-50 px-3 py-2 text-sm font-bold text-indigo-700">from ₹99</span></div>
-                <div className="mt-5 flex items-center gap-3 border-t border-slate-100 pt-5 text-sm text-slate-500"><div className="avatar-stack"><i>R</i><i>S</i><i>A</i></div> Loved by renters near you</div>
+                <div className="mt-5 flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-5 text-sm text-slate-500 dark:text-slate-400"><div className="avatar-stack"><i>R</i><i>S</i><i>A</i></div> Loved by renters near you</div>
               </div>
               <div className="floating-note note-one"><span>⚡</span><div><b>Fast pickup</b><small>Right nearby</small></div></div>
               <div className="floating-note note-two"><span>✦</span><div><b>Save more</b><small>Rent, don’t buy</small></div></div>
@@ -130,14 +133,14 @@ export default function Home() {
           </div>
 
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="stat-strip mt-14 grid grid-cols-2 divide-x divide-white/60 overflow-hidden rounded-2xl sm:grid-cols-4">
-            {[{ value: `${items.length || "—"}+`, label: "items to discover" }, { value: "24/7", label: "browse anytime" }, { value: "100%", label: "rental community" }, { value: "₹", label: "budget-friendly" }].map((stat) => <div className="px-5 py-5 text-center" key={stat.label}><p className="text-2xl font-bold text-slate-900">{stat.value}</p><p className="mt-1 text-xs font-medium text-slate-500">{stat.label}</p></div>)}
+            {[{ value: `${items.length || "—"}+`, label: "items to discover" }, { value: "24/7", label: "browse anytime" }, { value: "100%", label: "rental community" }, { value: "₹", label: "budget-friendly" }].map((stat) => <div className="px-5 py-5 text-center" key={stat.label}><p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p><p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{stat.label}</p></div>)}
           </motion.div>
         </div>
       </section>
       <p className="season-hint" aria-hidden="true">Click open space to change the season · {season}</p>
 
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-7">
-        <div className="section-heading"><div><p className="section-kicker">Find your thing</p><h2>Browse by category</h2><p>All the useful stuff, close to home.</p></div><span className="hidden rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 sm:block">{categories.length} categories</span></div>
+        <div className="section-heading"><div><p className="section-kicker">Find your thing</p><h2>Browse by category</h2><p>All the useful stuff, close to home.</p></div><span className="hidden rounded-full bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 sm:block">{categories.length} categories</span></div>
         <div className="mt-7"><CategoryChips categories={categories} activeId={activeCategory} onSelect={setActiveCategory} /></div>
       </section>
 

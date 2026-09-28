@@ -117,9 +117,9 @@ export default function NearbyListings() {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           <MapPin size={15} /> Rentals near you
         </span>
         {!center && (
@@ -135,7 +135,7 @@ export default function NearbyListings() {
         )}
         {center && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500">Within {radiusInput} km</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Within {radiusInput} km</span>
             <input
               type="range"
               min="1"
@@ -157,19 +157,19 @@ export default function NearbyListings() {
 
       {(geolocation.status === "denied" || geolocation.status === "unsupported") && !center && (
         <form onSubmit={searchManualLocation} className="mt-3 flex flex-wrap items-center gap-2">
-          <p className="w-full text-xs text-slate-500">
+          <p className="w-full text-xs text-slate-500 dark:text-slate-400">
             {geolocation.status === "unsupported"
               ? "Your browser doesn't support location access."
               : "Location permission was denied."}{" "}
             Search by city or pincode instead.
           </p>
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-400 focus-within:border-indigo-400 focus-within:bg-white">
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-slate-400 focus-within:border-indigo-400 focus-within:bg-white">
             <Search size={16} />
             <input
               value={manualQuery}
               onChange={(event) => setManualQuery(event.target.value)}
               placeholder="e.g. HSR Layout, Bengaluru or 560102"
-              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-800 outline-none"
+              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-800 dark:text-slate-100 outline-none"
             />
           </label>
           <button type="submit" disabled={manualStatus === "searching"} className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-70">
@@ -181,7 +181,7 @@ export default function NearbyListings() {
 
       {center && (
         <>
-          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200" style={{ height: 280 }}>
+          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700" style={{ height: 280 }}>
             <MapContainer center={[center.latitude, center.longitude]} zoom={12} style={{ height: "100%", width: "100%" }}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -206,7 +206,7 @@ export default function NearbyListings() {
           ) : loading ? (
             <div className="loading-state mt-4"><Loader2 className="animate-spin" /> Finding rentals near you…</div>
           ) : items.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">No listed items with a pinned location within {radiusKm} km yet. Try a larger radius.</p>
+            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">No listed items with a pinned location within {radiusKm} km yet. Try a larger radius.</p>
           ) : (
             <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {items.map((item, index) => (

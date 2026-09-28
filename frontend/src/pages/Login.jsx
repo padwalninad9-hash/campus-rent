@@ -33,7 +33,7 @@ export default function Login() {
           <div className="login-card-top"><span className="login-icon"><LockKeyhole size={23} /></span><span className="login-live"><i /> Secure sign in</span></div>
           <p className="section-kicker mt-7">Welcome back</p>
           <h1>Pick up where you left off.</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-500">Your rental marketplace is ready when you are.</p>
+          <p className="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">Your rental marketplace is ready when you are.</p>
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             {location.state?.message && <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{location.state.message}</p>}
             <label className="form-label">Email address<div className="input-with-icon"><Mail size={18} /><input type="email" required autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} /></div></label>

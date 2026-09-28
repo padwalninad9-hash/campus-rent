@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base { html { scroll-behavior: smooth; } body { @apply bg-[#fcfcff] text-slate-900 antialiased; font-family: 'DM Sans', sans-serif; } h1,h2,h3,.font-display { font-family: 'Outfit', sans-serif; } ::selection { @apply bg-indigo-600 text-white; } }
+@layer base { html { scroll-behavior: smooth; } body { @apply bg-[#fcfcff] text-slate-900 antialiased dark:bg-[#0b0f1a] dark:text-slate-100; font-family: 'DM Sans', sans-serif; transition: background-color .25s ease, color .25s ease; } h1,h2,h3,.font-display { font-family: 'Outfit', sans-serif; } ::selection { @apply bg-indigo-600 text-white; } }
 @layer components {
   .site-header { @apply sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl; }
   .brand { @apply flex items-center gap-2 font-display text-xl font-bold tracking-tight text-slate-900; }.brand > span:last-child > span { @apply text-indigo-600; }.brand-mark { @apply grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-500 text-base font-bold text-white; }
@@ -57,3 +57,168 @@
 
 /* Clear glass fields for every place a member types on login and sign-up. */
 .login-card .input-with-icon,.signup-form-card .input-with-icon{border-radius:.9rem;background:linear-gradient(135deg,rgba(255,255,255,.44),rgba(224,231,255,.19));box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 18px rgba(80,90,150,.06);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}.login-card .input-with-icon input,.signup-form-card .input-with-icon input{border:1px solid rgba(181,191,216,.7)!important;background:rgba(255,255,255,.26)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}.login-card .input-with-icon input:focus,.signup-form-card .input-with-icon input:focus{border-color:rgba(99,102,241,.72)!important;background:rgba(255,255,255,.45)!important;box-shadow:0 0 0 4px rgba(129,140,248,.17),inset 0 1px 0 rgba(255,255,255,.8)!important}.login-card .password-toggle,.signup-form-card .password-toggle{background:rgba(255,255,255,.28);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+/* ============================================================
+   Dark mode — appended overrides only, nothing above this point
+   is touched, so light mode is unaffected. Toggled via .dark on
+   <html> (see ThemeContext). Covers the bespoke @layer components
+   classes that plain Tailwind dark: variants can't reach; pages
+   built from plain utility classes already carry their own dark:
+   variants inline in JSX.
+   ============================================================ */
+
+.dark .site-header{background:rgba(15,23,42,.85);border-color:rgba(51,65,85,.6)}
+.dark .brand{color:#f1f5f9}
+.dark .nav-link{color:#94a3b8}
+.dark .nav-link:hover{background:rgba(99,102,241,.15);color:#c7d2fe}
+.dark .nav-link-active{background:rgba(99,102,241,.2);color:#c7d2fe}
+.dark .profile-pill{background:#1e293b;color:#e2e8f0}
+.dark .profile-pill:hover{background:rgba(99,102,241,.2)}
+.dark .icon-button{border-color:#334155;background:#1e293b;color:#cbd5e1}
+.dark .icon-button:hover{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.15);color:#c7d2fe}
+.dark .mobile-menu{background:#0f172a;border-color:#1e293b}
+.dark .site-footer{background:#0b0f1a;border-color:#1e293b}
+.dark .btn-outline{border-color:#334155;background:#1e293b;color:#e2e8f0}
+.dark .btn-outline:hover{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.12);color:#c7d2fe}
+
+.dark .auth-card{background:#141a2b;border-color:#1e293b}
+.dark .auth-icon{background:rgba(99,102,241,.18);color:#c7d2fe}
+.dark .otp-input{background:#0f172a;border-color:#334155;color:#f1f5f9}
+.dark .otp-input:focus{background:#141a2b;border-color:#6366f1}
+
+.dark .market-page{background:linear-gradient(135deg,#0b0f1a,#0e1424 55%,#0b0f1a)}
+.dark .market-card{background:#141a2b;border-color:#1e293b;box-shadow:0 18px 45px rgba(0,0,0,.35)}
+.dark .form-section{border-color:#1e293b}
+.dark .form-section h2{color:#f1f5f9}
+.dark .form-section p{color:#94a3b8}
+.dark .market-label{color:#cbd5e1}
+.dark .market-label input,.dark .market-label textarea,.dark .market-label select{background:#0f172a;border-color:#334155;color:#f1f5f9}
+.dark .market-label input:focus,.dark .market-label textarea:focus,.dark .market-label select:focus{border-color:#818cf8;box-shadow:0 0 0 4px rgba(99,102,241,.25)}
+.dark .market-label input::placeholder,.dark .market-label textarea::placeholder{color:#64748b}
+.dark .photo-drop{background:#0f172a;border-color:#334155;color:#94a3b8}
+.dark .photo-drop:hover{background:rgba(99,102,241,.08);border-color:#818cf8;color:#c7d2fe}
+.dark .form-alert{background:rgba(190,18,60,.15);border-color:rgba(190,18,60,.4);color:#fca5a5}
+.dark .loading-state{color:#94a3b8}
+.dark .empty-state,.dark .empty-market{background:rgba(30,41,59,.4);border-color:#334155;color:#94a3b8}
+.dark .empty-inline{background:rgba(30,41,59,.4);border-color:#334155;color:#94a3b8}
+.dark .results-count{background:rgba(99,102,241,.18);color:#c7d2fe}
+.dark .loading-card{background:#1e293b}
+
+.dark .listing-manager-card{background:#141a2b;border-color:#1e293b}
+.dark .listing-manager-image{background:#1e293b;color:#94a3b8}
+.dark .listing-manager-body h2{color:#f1f5f9}
+.dark .listing-meta{color:#94a3b8}
+.dark .listing-manager-footer>strong{color:#f1f5f9}
+.dark .listing-actions button{background:#0f172a;border-color:#334155;color:#cbd5e1}
+.dark .listing-actions button:hover{border-color:#818cf8;background:rgba(99,102,241,.12);color:#c7d2fe}
+
+.dark .booking-card{background:#141a2b;border-color:#1e293b}
+.dark .booking-image{background:#1e293b;color:#94a3b8}
+.dark .booking-body h2{color:#f1f5f9}
+.dark .booking-dates,.dark .booking-note{color:#94a3b8}
+.dark .booking-footer{border-color:#1e293b}
+.dark .booking-footer>strong{color:#f1f5f9}
+.dark .booking-status.pending_payment{background:rgba(217,119,6,.18);color:#fbbf24}
+.dark .booking-status.pending_review{background:rgba(190,18,60,.18);color:#fb7185}
+.dark .booking-status.confirmed{background:rgba(5,150,105,.18);color:#6ee7b7}
+.dark .booking-status.ongoing{background:rgba(79,70,229,.2);color:#a5b4fc}
+.dark .booking-status.completed{background:rgba(51,65,85,.6);color:#cbd5e1}
+.dark .booking-status.cancelled{background:rgba(190,18,60,.18);color:#fca5a5}
+
+.dark .item-card{background:#141a2b;border-color:rgba(51,65,85,.6)}
+.dark .placeholder-image{background:linear-gradient(135deg,#1e293b,#1e1b3a,#2a1e2e)}
+.dark .save-button{background:rgba(30,41,59,.85);color:#cbd5e1}
+.dark .item-card h3{color:#f1f5f9}
+.dark .item-location{color:#94a3b8}
+.dark .item-action{border-color:#1e293b;color:#cbd5e1}
+
+.dark .explore-toolbar label{background:#141a2b;border-color:#334155;color:#818cf8}
+.dark .explore-toolbar input{color:#f1f5f9}
+.dark .explore-count{background:rgba(99,102,241,.18);border-color:rgba(99,102,241,.3);color:#c7d2fe}
+
+.dark .login-shell,.dark .signup-shell{background:linear-gradient(135deg,#0b0f1a 0%,#0e1120 48%,#0a1416 100%)}
+.dark .login-shell::before,.dark .signup-shell::before{opacity:.12}
+.dark .login-card,.dark .signup-form-card{border-color:rgba(51,65,85,.6);background:rgba(20,26,43,.75);box-shadow:0 25px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
+.dark .login-card::before,.dark .signup-form-card::before{background:linear-gradient(135deg,rgba(99,102,241,.08),transparent 36%)}
+.dark .login-brandline{border-color:rgba(51,65,85,.6);background:rgba(20,26,43,.5)}
+.dark .login-card h1,.dark .signup-form-card h2{color:#f1f5f9}
+.dark .form-label{color:#cbd5e1}
+.dark .login-card .input-with-icon,.dark .signup-form-card .input-with-icon{background:linear-gradient(135deg,rgba(30,41,59,.6),rgba(30,27,58,.3))}
+.dark .login-card .input-with-icon input,.dark .signup-form-card .input-with-icon input{border-color:rgba(51,65,85,.8)!important;background:rgba(15,23,42,.6)!important;color:#f1f5f9}
+.dark .login-card .input-with-icon input:focus,.dark .signup-form-card .input-with-icon input:focus{background:rgba(15,23,42,.85)!important}
+.dark .login-card .input-with-icon input::placeholder,.dark .signup-form-card .input-with-icon input::placeholder{color:#64748b}
+.dark .login-card .password-toggle,.dark .signup-form-card .password-toggle{background:rgba(30,41,59,.5);color:#94a3b8}
+.dark .login-create-link{border-color:rgba(51,65,85,.6);background:rgba(30,41,59,.4);color:#e2e8f0}
+.dark .login-divider,.dark .signup-legal{color:#64748b}
+.dark .login-divider:before,.dark .login-divider:after{background:#334155}
+.dark .login-footer{color:#64748b}
+.dark .password-strength{background:#0f172a;border-color:#1e293b;color:#94a3b8}
+.dark .password-strength li{color:#64748b}
+
+.dark .recovery-shell{background:#0b0f1a}
+.dark .recovery-grid{opacity:.18}
+.dark .recovery-card{background:#141a2b;border-color:#1e293b;box-shadow:0 25px 50px rgba(0,0,0,.4)}
+.dark .recovery-card h2{color:#f1f5f9}
+.dark .recovery-body{color:#94a3b8}
+.dark .recovery-input input{background:#0f172a;border-color:#334155;color:#f1f5f9}
+.dark .recovery-input input:focus{background:#141a2b}
+.dark .recovery-input input::placeholder{color:#64748b}
+.dark .recovery-back{color:#94a3b8}
+.dark .recovery-assurance{background:rgba(99,102,241,.12);color:#94a3b8}
+.dark .recovery-assurance b{color:#cbd5e1}
+.dark .recovery-tip{background:#0f172a;border-color:#1e293b}
+.dark .recovery-tip p{color:#94a3b8}
+.dark .recovery-tip b{color:#e2e8f0}
+.dark .recovery-email-chip{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.3);color:#c7d2fe}
+.dark .recovery-help{color:#475569}
+.dark .recovery-text-button{color:#94a3b8}
+
+.dark .kyc-page{background:#0b0f1a}
+.dark .kyc-layout{background:#141a2b;box-shadow:0 25px 60px rgba(0,0,0,.4)}
+.dark .kyc-card h2{color:#f1f5f9}
+.dark .kyc-progress-label{background:rgba(99,102,241,.18);color:#c7d2fe}
+.dark .kyc-progress{background:#1e293b}
+.dark .kyc-upload{background:#0f172a;border-color:#334155}
+.dark .kyc-upload:hover{background:rgba(99,102,241,.1);border-color:#818cf8}
+.dark .kyc-upload b{color:#e2e8f0}
+.dark .kyc-upload small{color:#94a3b8}
+.dark .kyc-consent{color:#94a3b8}
+.dark .kyc-success{background:#141a2b;border-color:#1e293b}
+.dark .kyc-success h1{color:#f1f5f9}
+.dark .kyc-success p:last-child{color:#94a3b8}
+.dark .face-status{background:#0f172a;color:#94a3b8}
+
+.dark .camera-card{background:#141a2b}
+.dark .camera-card h2{color:#f1f5f9}
+.dark .camera-card>p:not(.section-kicker){color:#94a3b8}
+.dark .camera-close{background:#1e293b;color:#94a3b8}
+
+.dark .profile-shell{background:#0b0f1a}
+.dark .profile-grid{opacity:.15}
+.dark .profile-panel{background:#141a2b;border-color:#1e293b;box-shadow:0 25px 50px rgba(0,0,0,.35)}
+.dark .profile-panel h2{color:#f1f5f9}
+.dark .profile-edit-icon{background:rgba(99,102,241,.18);color:#c7d2fe}
+.dark .profile-photo-editor{background:linear-gradient(90deg,rgba(99,102,241,.1),rgba(20,26,43,.4),rgba(217,70,239,.08));border-color:rgba(99,102,241,.25)}
+.dark .profile-photo-editor b{color:#f1f5f9}
+.dark .profile-photo-editor p{color:#94a3b8}
+.dark .profile-progress{background:#1e293b}
+.dark .profile-progress-row b{color:#a5b4fc}
+
+/* Second pass — gaps found via a systematic audit of every dark literal-hex
+   text color in the file above (not just Tailwind text-slate-* tokens). */
+.dark .section-heading h2{color:#f1f5f9}
+.dark .page-heading h1,.dark .page-intro h1{color:#f1f5f9}
+.dark .empty-market h2{color:#f1f5f9}
+.dark .booking-section-heading h2{color:#f1f5f9}
+.dark .booking-section-heading p{color:#94a3b8}
+.dark .listing-tips{color:#cbd5e1}
+.dark .recovery-body strong{color:#e2e8f0}
+.dark .recovery-form label{color:#cbd5e1}
+.dark .availability-pill.available{background:rgba(5,150,105,.18);color:#6ee7b7}
+.dark .availability-pill.hidden{background:rgba(190,18,60,.18);color:#fca5a5}
+/* Profile.jsx uses .input-with-icon outside the login/signup cards, where
+   the earlier dark rules (scoped to .login-card/.signup-form-card) don't
+   reach — a general fallback for any other standalone usage. */
+.dark .input-with-icon input{background:#0f172a;border-color:#334155;color:#f1f5f9}
+.dark .input-with-icon input::placeholder{color:#64748b}
+.dark .input-with-icon svg{color:#64748b}

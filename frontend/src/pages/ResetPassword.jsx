@@ -59,7 +59,7 @@ export default function ResetPassword() {
 
   return (
     <div className="mx-auto max-w-sm px-5 py-20">
-      <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-indigo-100/40">
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-xl shadow-indigo-100/40">
       <p className="section-kicker">One last step</p>
       <h1 className="font-display font-bold text-2xl mb-1">Create a new password</h1>
       <p className="text-ink/50 text-sm mb-7">Create a strong password, then confirm it below.</p>

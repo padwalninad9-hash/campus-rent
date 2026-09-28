@@ -38,9 +38,9 @@ export default function ReportUserButton({ reportedUserId }) {
 
       {open && (
         <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/60 p-5 backdrop-blur-sm" onClick={() => setOpen(false)}>
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold text-slate-900">Report this member</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Report this member</h3>
               <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
             </div>
             {done ? (
@@ -49,7 +49,7 @@ export default function ReportUserButton({ reportedUserId }) {
               </div>
             ) : (
               <form onSubmit={submit} className="mt-3">
-                <p className="text-sm text-slate-500">Tell us what happened. Our team reviews reports and factors them into member trust scores.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Tell us what happened. Our team reviews reports and factors them into member trust scores.</p>
                 <textarea
                   required
                   minLength={10}
@@ -57,7 +57,7 @@ export default function ReportUserButton({ reportedUserId }) {
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                   placeholder="e.g. Item didn't match the listing description…"
-                  className="mt-3 min-h-[6rem] w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                  className="mt-3 min-h-[6rem] w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                 />
                 {error && <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}
                 <button

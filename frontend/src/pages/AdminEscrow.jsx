@@ -19,7 +19,7 @@ function PartialRefundForm({ hold, onSubmit, working }) {
       onSubmit={(event) => { event.preventDefault(); onSubmit(hold.id, amount); }}
       className="mt-3 flex flex-wrap items-center gap-2"
     >
-      <span className="text-xs text-slate-500">Refund amount (of ₹{Number(hold.payments.amount).toFixed(0)})</span>
+      <span className="text-xs text-slate-500 dark:text-slate-400">Refund amount (of ₹{Number(hold.payments.amount).toFixed(0)})</span>
       <input
         type="number"
         min="0"
@@ -27,7 +27,7 @@ function PartialRefundForm({ hold, onSubmit, working }) {
         step="1"
         value={amount}
         onChange={(event) => setAmount(event.target.value)}
-        className="w-24 rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm font-semibold outline-none focus:border-indigo-400"
+        className="w-24 rounded-lg border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 text-sm font-semibold outline-none focus:border-indigo-400"
       />
       <button type="submit" disabled={working} className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
         {working ? <Loader2 size={13} className="animate-spin" /> : <Undo2 size={13} />} Resolve dispute
@@ -81,23 +81,23 @@ export default function AdminEscrow() {
   return (
     <section className="mx-auto max-w-4xl px-5 py-14 sm:px-7">
       <p className="section-kicker">Admin</p>
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900">Escrow dashboard</h1>
-      <p className="mt-1 text-slate-500">{heldCount} deposit{heldCount === 1 ? "" : "s"} currently held. Deposits release automatically when an owner marks a rental returned — use this only for disputes or manual corrections.</p>
+      <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Escrow dashboard</h1>
+      <p className="mt-1 text-slate-500 dark:text-slate-400">{heldCount} deposit{heldCount === 1 ? "" : "s"} currently held. Deposits release automatically when an owner marks a rental returned — use this only for disputes or manual corrections.</p>
 
       {error && <p className="form-alert mt-6" role="alert">{error}</p>}
 
       {loading ? (
         <div className="loading-state mt-8"><Loader2 className="animate-spin" /> Loading escrow holds…</div>
       ) : holds.length === 0 ? (
-        <p className="mt-8 text-sm text-slate-500">No deposits have been collected yet.</p>
+        <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">No deposits have been collected yet.</p>
       ) : (
         <div className="mt-8 space-y-3">
           {holds.map((hold) => (
-            <div key={hold.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div key={hold.id} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-slate-800">{hold.payments?.bookings?.items?.title || "Rental item"}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-semibold text-slate-800 dark:text-slate-100">{hold.payments?.bookings?.items?.title || "Rental item"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Renter: {hold.payments?.bookings?.renter?.full_name || "Unknown"} · {hold.payments?.bookings?.start_date} → {hold.payments?.bookings?.end_date} · ₹{Number(hold.payments?.amount).toFixed(0)} deposit
                   </p>
                 </div>

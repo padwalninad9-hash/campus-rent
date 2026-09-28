@@ -126,31 +126,31 @@ export default function Checkout() {
   return (
     <div className="max-w-md mx-auto px-5 py-16">
       <h1 className="font-display font-bold text-2xl mb-1">Confirm & pay</h1>
-      <p className="text-slate-500 text-sm mb-7">Secure payment via Razorpay{depositAmount > 0 ? " — rent and deposit are charged as two separate payments" : ""}.</p>
+      <p className="text-slate-500 dark:text-slate-400 text-sm mb-7">Secure payment via Razorpay{depositAmount > 0 ? " — rent and deposit are charged as two separate payments" : ""}.</p>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-slate-500">Item</span>
+          <span className="text-slate-500 dark:text-slate-400">Item</span>
           <span className="font-medium">{item?.title}</span>
         </div>
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-slate-500">Dates</span>
+          <span className="text-slate-500 dark:text-slate-400">Dates</span>
           <span className="font-mono">
             {booking.start_date} → {booking.end_date}
           </span>
         </div>
-        <hr className="my-3 border-slate-100" />
+        <hr className="my-3 border-slate-100 dark:border-slate-800" />
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-slate-500">Rent</span>
+          <span className="text-slate-500 dark:text-slate-400">Rent</span>
           <span className="font-mono">₹{rentAmount.toFixed(0)}</span>
         </div>
         {depositAmount > 0 && (
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-slate-500">Refundable deposit</span>
+            <span className="text-slate-500 dark:text-slate-400">Refundable deposit</span>
             <span className="font-mono">₹{depositAmount.toFixed(0)}</span>
           </div>
         )}
-        <hr className="my-3 border-slate-100" />
+        <hr className="my-3 border-slate-100 dark:border-slate-800" />
         <div className="flex justify-between font-mono font-semibold text-lg">
           <span>Total</span>
           <span className="text-indigo-600">₹{Number(booking.total_amount).toFixed(0)}</span>

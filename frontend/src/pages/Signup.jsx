@@ -44,7 +44,7 @@ export default function Signup() {
 
       <main className="signup-form-wrap">
         <div className="signup-form-card">
-          <div className="flex items-start justify-between gap-4"><div><p className="section-kicker">Get started</p><h2>Create your account</h2><p className="mt-2 text-sm text-slate-500">It takes less than a minute to join Rentify.</p></div><span className="signup-step">1 of 2</span></div>
+          <div className="flex items-start justify-between gap-4"><div><p className="section-kicker">Get started</p><h2>Create your account</h2><p className="mt-2 text-sm text-slate-500 dark:text-slate-400">It takes less than a minute to join Rentify.</p></div><span className="signup-step">1 of 2</span></div>
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <label className="form-label">Full name<div className="input-with-icon"><User size={18} /><input required autoComplete="name" placeholder="Your full name" value={fullName} onChange={(event) => setFullName(event.target.value)} /></div></label>
             <label className="form-label">Email address<div className="input-with-icon"><Mail size={18} /><input type="email" required autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} /></div></label>
@@ -55,7 +55,7 @@ export default function Signup() {
           </form>
           <div className="login-divider mt-6"><span>Or continue with</span></div>
           <SocialLoginButtons />
-          <p className="mt-6 text-center text-sm text-slate-500">Already have an account? <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-800">Log in</Link></p>
+          <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">Already have an account? <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-800">Log in</Link></p>
           <p className="signup-legal">By continuing, you agree to use Rentify respectfully within the rental community.</p>
         </div>
       </main>
