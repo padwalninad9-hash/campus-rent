@@ -119,11 +119,31 @@ export default function AdminRisk() {
     }
   }
 
-  async function resolveBooking(id, status) {
+  async function approveBooking(id) {
     setWorkingId(id);
     setError("");
-    const { error: updateError } = await supabase.from("bookings").update({ status }).eq("id", id);
+    const { error: updateError } = await supabase.from("bookings").update({ status: "confirmed" }).eq("id", id);
     if (updateError) setError(updateError.message);
+    await load();
+    setWorkingId("");
+  }
+
+  async function rejectBooking(id) {
+    setWorkingId(id);
+    setError("");
+    try {
+      // Routes through resolve-escrow so a paid deposit is auto-refunded in
+      // the same step, instead of sitting "held" until noticed manually.
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/resolve-escrow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: "reject", booking_id: id }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Couldn't reject this booking");
+    } catch (e) {
+      setError(e.message);
+    }
     await load();
     setWorkingId("");
   }
@@ -161,8 +181,8 @@ export default function AdminRisk() {
                   <p className="text-xs text-slate-500">Renter: {booking.renter?.full_name || "Unknown"} · {booking.start_date} → {booking.end_date} · ₹{Number(booking.total_amount).toFixed(0)}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button disabled={workingId === booking.id} onClick={() => resolveBooking(booking.id, "confirmed")} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60"><Check size={14} /> Approve</button>
-                  <button disabled={workingId === booking.id} onClick={() => resolveBooking(booking.id, "cancelled")} className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-60"><X size={14} /> Reject</button>
+                  <button disabled={workingId === booking.id} onClick={() => approveBooking(booking.id)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60"><Check size={14} /> Approve</button>
+                  <button disabled={workingId === booking.id} onClick={() => rejectBooking(booking.id)} className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-60"><X size={14} /> Reject</button>
                 </div>
               </div>
             ))}

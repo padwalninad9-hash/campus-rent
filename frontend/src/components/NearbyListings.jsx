@@ -24,6 +24,7 @@ export default function NearbyListings() {
   const geolocation = useGeolocation();
   const [center, setCenter] = useState(null); // { latitude, longitude }
   const [radiusKm, setRadiusKm] = useState(10);
+  const [radiusInput, setRadiusInput] = useState(10);
   const [manualQuery, setManualQuery] = useState("");
   const [manualStatus, setManualStatus] = useState("idle"); // idle | searching | error
   const [items, setItems] = useState([]);
@@ -33,6 +34,13 @@ export default function NearbyListings() {
   useEffect(() => {
     if (geolocation.status === "granted" && geolocation.coords) setCenter(geolocation.coords);
   }, [geolocation.status, geolocation.coords]);
+
+  // Debounced, matching CatalogFilterBar's pattern — otherwise dragging the
+  // slider fires a real RPC call on every intermediate value.
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setRadiusKm(radiusInput), 350);
+    return () => window.clearTimeout(timeout);
+  }, [radiusInput]);
 
   useEffect(() => {
     if (!center) return;
@@ -127,13 +135,13 @@ export default function NearbyListings() {
         )}
         {center && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500">Within {radiusKm} km</span>
+            <span className="text-xs font-semibold text-slate-500">Within {radiusInput} km</span>
             <input
               type="range"
               min="1"
               max="50"
-              value={radiusKm}
-              onChange={(event) => setRadiusKm(Number(event.target.value))}
+              value={radiusInput}
+              onChange={(event) => setRadiusInput(Number(event.target.value))}
               className="w-40 accent-indigo-600"
             />
             <button

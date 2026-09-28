@@ -15,6 +15,12 @@
 //     `amount` (can be less than the full deposit — the rest stays with
 //     Rentify/the owner, since real payout-splitting needs a licensed
 //     aggregator this project doesn't have) via Razorpay. escrow_holds -> refunded.
+//   { action: "reject", booking_id }
+//     Admin rejects a high-risk booking stuck in pending_review. Booking ->
+//     cancelled, its held deposit (if any) is auto-refunded the same way
+//     "complete" does. Known limitation: the RENT leg is not refunded here —
+//     only the deposit. Handling that would need its own Razorpay refund
+//     path, which wasn't built out given project time constraints.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -122,16 +128,75 @@ Deno.serve(async (req) => {
 
     if (!callerIsAdmin) throw new Error("Admin access required");
 
+    if (body.action === "reject") {
+      // A pending_review booking has already been fully paid (rent + deposit)
+      // — rejecting it means the rental never happens, so the deposit should
+      // come back automatically instead of sitting "held" until an admin
+      // happens to notice it in the escrow dashboard.
+      const { booking_id } = body;
+      if (!booking_id) throw new Error("booking_id is required");
+
+      const { data: booking, error: bookingErr } = await supabase
+        .from("bookings")
+        .select("id, status")
+        .eq("id", booking_id)
+        .single();
+      if (bookingErr || !booking) throw new Error("Booking not found");
+      if (booking.status !== "pending_review") throw new Error("Only a booking awaiting review can be rejected");
+
+      const { error: statusErr } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", booking_id);
+      if (statusErr) throw new Error(statusErr.message);
+
+      const { data: depositPayment } = await supabase
+        .from("payments")
+        .select("id, razorpay_payment_id, amount")
+        .eq("booking_id", booking_id)
+        .eq("type", "deposit")
+        .eq("status", "paid")
+        .maybeSingle();
+
+      let depositRefund = "not_applicable";
+      if (depositPayment) {
+        const { data: hold } = await supabase
+          .from("escrow_holds")
+          .select("id, status")
+          .eq("payment_id", depositPayment.id)
+          .single();
+
+        if (hold && hold.status === "held") {
+          try {
+            await razorpayRefund(depositPayment.razorpay_payment_id, undefined);
+            await supabase
+              .from("escrow_holds")
+              .update({ status: "refunded", refund_amount: depositPayment.amount, resolution_note: "Booking rejected by admin", released_at: new Date().toISOString() })
+              .eq("id", hold.id);
+            await supabase.from("payments").update({ status: "refunded" }).eq("id", depositPayment.id);
+            depositRefund = "refunded";
+          } catch (refundError: any) {
+            depositRefund = "failed: " + refundError.message;
+          }
+        } else {
+          depositRefund = hold?.status || "not_applicable";
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, status: "cancelled", deposit_refund: depositRefund }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (body.action === "dispute") {
       const { escrow_hold_id, note } = body;
       if (!escrow_hold_id) throw new Error("escrow_hold_id is required");
 
-      const { error } = await supabase
+      const { data: updated, error } = await supabase
         .from("escrow_holds")
         .update({ status: "disputed", resolution_note: note || null })
         .eq("id", escrow_hold_id)
-        .eq("status", "held");
+        .eq("status", "held")
+        .select("id");
       if (error) throw new Error(error.message);
+      if (!updated?.length) throw new Error("This deposit is no longer held — someone may have already resolved it.");
 
       return new Response(JSON.stringify({ success: true, status: "disputed" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

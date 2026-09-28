@@ -5,7 +5,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
-import Explore from "./pages/Explore";
 import Catalog from "./pages/Catalog";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -31,7 +30,6 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/explore" element={<Explore />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

@@ -13,6 +13,7 @@ export default function VerifyIdentity() {
   const [selfie, setSelfie] = useState(null);
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState("loading");
+  const [reviewNote, setReviewNote] = useState("");
   const [error, setError] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -21,8 +22,15 @@ export default function VerifyIdentity() {
 
   useEffect(() => {
     async function loadStatus() {
-      const { data } = await supabase.from("kyc_submissions").select("status, review_note").eq("user_id", user.id).maybeSingle();
+      const { data, error: loadError } = await supabase.from("kyc_submissions").select("status, review_note").eq("user_id", user.id).maybeSingle();
+      if (loadError) {
+        console.error("Failed to load KYC status:", loadError.message);
+        setError("Couldn't load your verification status. Please refresh the page.");
+        setStatus("not_started");
+        return;
+      }
       setStatus(data?.status || "not_started");
+      setReviewNote(data?.review_note || "");
     }
     if (user) loadStatus();
   }, [user]);
@@ -101,7 +109,7 @@ export default function VerifyIdentity() {
       if (idUploadError) throw idUploadError;
       const { error: selfieUploadError } = await supabase.storage.from("kyc-documents").upload(selfiePath, selfie, { contentType: selfie.type });
       if (selfieUploadError) throw selfieUploadError;
-      const { error: submissionError } = await supabase.from("kyc_submissions").insert({ user_id: user.id, identity_document_path: idPath, selfie_path: selfiePath, status: "pending", consent_given_at: new Date().toISOString() });
+      const { error: submissionError } = await supabase.from("kyc_submissions").upsert({ user_id: user.id, identity_document_path: idPath, selfie_path: selfiePath, status: "pending", consent_given_at: new Date().toISOString(), reviewed_at: null, review_note: null });
       if (submissionError) throw submissionError;
       setStatus("pending");
     } catch (submissionError) { setError(submissionError.message || "We couldn't submit your documents. Please try again."); setStatus("not_started"); }
@@ -112,7 +120,7 @@ export default function VerifyIdentity() {
   if (status === "pending" || status === "uploading") return <div className="kyc-page"><div className="kyc-success"><LoaderCircle size={44} className={status === "uploading" ? "animate-spin" : ""} /><p className="section-kicker">{status === "uploading" ? "Securely uploading" : "Verification in review"}</p><h1>{status === "uploading" ? "Submitting your documents…" : "Thanks — we’re checking your documents."}</h1><p>{status === "uploading" ? "Please keep this page open for a moment." : "We’ll review your photo ID and selfie. Your profile will update once approved."}</p></div></div>;
 
   return <section className="kyc-page"><div className="kyc-layout"><aside className="kyc-info"><div className="kyc-icon"><ShieldCheck size={30} /></div><p className="section-kicker mt-6 !text-indigo-200">Profile authentication</p><h1>Finish your profile with confidence.</h1><p>Verified accounts help keep Rentify safe and trustworthy for every renter and owner.</p><div className="kyc-steps"><span className="done"><i>✓</i> Account created</span><span className="done"><i>✓</i> Email confirmed</span><span className="current"><i>3</i> Identity verification</span></div><div className="kyc-privacy"><LockKeyhole size={17} /> Your documents are encrypted in private storage and are never visible to other users.</div></aside>
-    <main className="kyc-card"><div className="flex items-center justify-between"><div><p className="section-kicker">40% remaining</p><h2>Verify your identity</h2></div><span className="kyc-progress-label">60% done</span></div><div className="kyc-progress"><i /></div><p className="mt-4 text-sm leading-6 text-slate-500">Upload a clear photo of a valid government-issued photo ID and take a live selfie. We use them only to confirm your identity.</p>
+    <main className="kyc-card"><div className="flex items-center justify-between"><div><p className="section-kicker">40% remaining</p><h2>{status === "rejected" ? "Resubmit your documents" : "Verify your identity"}</h2></div><span className="kyc-progress-label">60% done</span></div><div className="kyc-progress"><i /></div>{status === "rejected" ? <div className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700"><b>Your previous submission was rejected.</b>{reviewNote ? ` ${reviewNote}` : " Please check your documents and try again."}</div> : <p className="mt-4 text-sm leading-6 text-slate-500">Upload a clear photo of a valid government-issued photo ID and take a live selfie. We use them only to confirm your identity.</p>}
       <form onSubmit={submit} className="mt-7 space-y-5"><label className="kyc-upload"><input type="file" accept="image/*" onChange={(event) => setIdentityDocument(event.target.files?.[0] || null)} /><span className="kyc-upload-icon"><FileBadge size={22} /></span><span><b>{identityDocument ? identityDocument.name : "Upload a photo ID"}</b><small>JPG, PNG, or WEBP • max 5 MB</small></span><ImageUp size={19} /></label><button type="button" onClick={openCamera} className="kyc-upload kyc-face-upload w-full text-left"><span className="kyc-upload-icon"><ScanFace size={22} /></span><span className="min-w-0 flex-1"><b>{selfie ? "Face check completed" : "Take a face-verified selfie"}</b><small>{selfie ? selfie.name : "Camera checks for one clear face before capture"}</small></span>{selfie ? <CheckCircle2 size={20} className="text-emerald-500" /> : <Camera size={19} />}</button>{cameraError && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{cameraError}</p>}<label className="kyc-consent"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /><span>I consent to Rentify securely processing these documents solely for profile verification.</span></label>{error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{error}</p>}<button className="btn-primary w-full py-3.5" disabled={status === "uploading"}>{status === "uploading" ? "Submitting securely…" : "Submit for verification"}</button></form>
     </main></div>
     {cameraOpen && <div className="camera-modal" role="dialog" aria-modal="true" aria-label="Face verification camera"><div className="camera-card face-camera-card"><button type="button" className="camera-close" onClick={closeCamera} aria-label="Close camera"><X size={20} /></button><p className="section-kicker">Live face check</p><h2>Center your face in the frame</h2><p>Use good lighting, remove sunglasses, and look directly at the camera.</p><div className="camera-preview"><video ref={videoRef} autoPlay muted playsInline /><div className="camera-oval" /><span className={`face-scan-line ${faceStatus === "ready" ? "is-ready" : ""}`} /></div><div className={`face-status ${faceStatus}`}><span>{faceStatus === "ready" ? <CheckCircle2 size={17} /> : faceStatus === "multiple" || faceStatus === "not_found" ? <CircleAlert size={17} /> : <ScanFace size={17} />}</span><p>{faceStatus === "ready" ? "One face detected — ready to capture" : faceStatus === "multiple" ? "More than one face detected — only you should be in frame" : faceStatus === "not_found" ? "Move into the guide so we can detect your face" : faceStatus === "unsupported" ? "Camera ready — capture a clear, front-facing selfie" : "Checking your camera for a clear face…"}</p></div>{cameraError && <p className="mt-4 text-sm font-medium text-rose-600">{cameraError}</p>}<button type="button" onClick={takeSelfie} className="btn-primary mt-6 w-full" disabled={faceStatus === "starting"}><Camera size={18} /> {faceStatus === "starting" ? "Preparing camera…" : "Capture verified selfie"}</button><p className="face-privacy"><LockKeyhole size={14} /> Face detection happens on this device. The camera preview is not streamed to Rentify.</p></div></div>}

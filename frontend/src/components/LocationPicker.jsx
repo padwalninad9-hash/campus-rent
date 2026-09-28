@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { LocateFixed } from "lucide-react";
+import useGeolocation from "../hooks/useGeolocation";
 
 // Vite bundles Leaflet's marker images with hashed URLs, which breaks the
 // library's default icon lookup — point it at the bundled assets directly.
@@ -30,22 +31,19 @@ function ClickToPlace({ onPlace }) {
 }
 
 export default function LocationPicker({ latitude, longitude, onChange }) {
-  const [locating, setLocating] = useState(false);
+  const geolocation = useGeolocation();
   const hasPin = latitude != null && longitude != null;
   const center = hasPin ? [latitude, longitude] : DEFAULT_CENTER;
 
-  function useMyLocation() {
-    if (!navigator.geolocation) return;
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        onChange(position.coords.latitude, position.coords.longitude);
-        setLocating(false);
-      },
-      () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
+  useEffect(() => {
+    // onChange intentionally left out of deps — callers pass a fresh inline
+    // function each render, and this should only re-fire when a new
+    // position actually comes in, not on every parent re-render.
+    if (geolocation.status === "granted" && geolocation.coords) {
+      onChange(geolocation.coords.latitude, geolocation.coords.longitude);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geolocation.status, geolocation.coords]);
 
   return (
     <div>
@@ -55,13 +53,14 @@ export default function LocationPicker({ latitude, longitude, onChange }) {
         </span>
         <button
           type="button"
-          onClick={useMyLocation}
-          disabled={locating}
+          onClick={geolocation.request}
+          disabled={geolocation.status === "locating"}
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:opacity-60"
         >
-          <LocateFixed size={14} /> {locating ? "Locating…" : "Use my location"}
+          <LocateFixed size={14} /> {geolocation.status === "locating" ? "Locating…" : "Use my location"}
         </button>
       </div>
+      {geolocation.error && <p className="mt-1.5 text-xs font-semibold text-rose-600">{geolocation.error}</p>}
       <div className="mt-2 overflow-hidden rounded-xl border border-slate-200" style={{ height: 260 }}>
         <MapContainer center={center} zoom={hasPin ? 15 : 12} style={{ height: "100%", width: "100%" }}>
           <TileLayer

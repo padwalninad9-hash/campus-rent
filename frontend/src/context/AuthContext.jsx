@@ -10,7 +10,11 @@ export function AuthProvider({ children }) {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   async function loadProfile(userId) {
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    if (error) {
+      console.error("Failed to load profile:", error.message);
+      return;
+    }
     setProfile(data);
   }
 

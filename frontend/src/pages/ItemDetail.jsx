@@ -16,12 +16,15 @@ import { useAuth } from "../context/AuthContext";
 import DateRangePicker from "../components/DateRangePicker";
 import ReportUserButton from "../components/ReportUserButton";
 
+// Inclusive of both the start and end date, matching create_rental_booking's
+// (end - start + 1) pricing in the database — otherwise the estimate shown
+// here undercounts by a full day versus what's actually charged at checkout.
 function daysBetween(start, end) {
   if (!start || !end) return 0;
   const startDate = new Date(start);
   const endDate = new Date(end);
   const ms = endDate - startDate;
-  const days = Math.round(ms / (1000 * 60 * 60 * 24));
+  const days = Math.round(ms / (1000 * 60 * 60 * 24)) + 1;
   return Math.max(1, days);
 }
 
