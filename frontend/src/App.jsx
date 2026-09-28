@@ -12,6 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import VerifyEmailSent from "./pages/VerifyEmailSent";
+import VerifyEmailOtp from "./pages/VerifyEmailOtp";
 import VerifyIdentity from "./pages/VerifyIdentity";
 import ItemDetail from "./pages/ItemDetail";
 import AddItem from "./pages/AddItem";
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/confirmed" element={<EmailConfirmed />} />
           <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
+          <Route path="/verify-email-otp" element={<VerifyEmailOtp />} />
           <Route path="/verify-identity" element={<ProtectedRoute><VerifyIdentity /></ProtectedRoute>} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route

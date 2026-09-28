@@ -12,6 +12,7 @@ export default function VerifyEmailSent() {
     <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">We sent a verification link to <span className="font-semibold text-slate-700">{email}</span>. Open the email and select <b>Confirm your email</b>.</p>
     <div className="auth-perks"><span><MailCheck size={16} /> One-click verification</span><span><ShieldCheck size={16} /> Secure account</span></div>
     <p className="mt-7 text-sm text-slate-500">Once verified, you’ll be logged in to Rentify automatically.</p>
+    <p className="mt-2 text-sm text-slate-500">Or <Link className="font-semibold text-indigo-600 hover:text-indigo-800" to={`/verify-email-otp?email=${encodeURIComponent(email)}`}>enter the 6-digit code</Link> from the same email instead.</p>
     <Link className="btn-outline mt-5" to="/login">Back to log in</Link>
   </div></div>;
 }

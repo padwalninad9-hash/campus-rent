@@ -92,6 +92,19 @@ export function AuthProvider({ children }) {
     return { error };
   }
 
+  // The confirmation email carries both a click-through link and this
+  // 6-digit code (see the "Confirm signup" template) — verifying it signs
+  // the user in immediately, same as clicking the link would.
+  async function verifySignupOtp(email, token) {
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: "signup" });
+    return { error };
+  }
+
+  async function resendSignupOtp(email) {
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    return { error };
+  }
+
   const value = {
     session,
     user: session?.user ?? null,
@@ -103,6 +116,8 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     updatePassword,
+    verifySignupOtp,
+    resendSignupOtp,
     refreshProfile: () => session?.user && loadProfile(session.user.id),
   };
 
