@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, Mail, ShieldCheck, Sparkles, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import PasswordStrength, { isStrongPassword } from "../components/PasswordStrength";
+import SocialLoginButtons from "../components/SocialLoginButtons";
 
 export default function Signup() {
   const { signUp } = useAuth();
@@ -52,6 +53,8 @@ export default function Signup() {
             {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{error}</p>}
             <button className="btn-primary signup-submit w-full" disabled={loading}>{loading ? "Creating your account…" : <>Continue <ArrowRight size={18} /></>}</button>
           </form>
+          <div className="login-divider mt-6"><span>Or continue with</span></div>
+          <SocialLoginButtons />
           <p className="mt-6 text-center text-sm text-slate-500">Already have an account? <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-800">Log in</Link></p>
           <p className="signup-legal">By continuing, you agree to use Rentify respectfully within the rental community.</p>
         </div>

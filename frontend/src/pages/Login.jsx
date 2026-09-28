@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, MapPin, Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import SocialLoginButtons from "../components/SocialLoginButtons";
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -41,7 +42,9 @@ export default function Login() {
             {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{error}</p>}
             <button className="btn-primary login-submit w-full" disabled={loading}>{loading ? "Logging you in…" : <>Enter Rentify <ArrowRight size={18} /></>}</button>
           </form>
-          <div className="login-divider"><span>New to Rentify?</span></div>
+          <div className="login-divider"><span>Or continue with</span></div>
+          <SocialLoginButtons />
+          <div className="login-divider mt-6"><span>New to Rentify?</span></div>
           <Link to="/signup" className="login-create-link">Create an account <ArrowRight size={17} /></Link>
         </div>
         <p className="login-footer">Your privacy matters. Your password is always protected.</p>

@@ -105,6 +105,18 @@ export function AuthProvider({ children }) {
     return { error };
   }
 
+  // provider matches Supabase's provider keys exactly: google, facebook,
+  // twitter, discord, github, linkedin_oidc. Redirects to the provider,
+  // then back to /auth/confirmed once they approve — same landing page the
+  // email confirmation link uses, since a session exists either way by then.
+  async function signInWithProvider(provider) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/confirmed` },
+    });
+    return { error };
+  }
+
   const value = {
     session,
     user: session?.user ?? null,
@@ -118,6 +130,7 @@ export function AuthProvider({ children }) {
     updatePassword,
     verifySignupOtp,
     resendSignupOtp,
+    signInWithProvider,
     refreshProfile: () => session?.user && loadProfile(session.user.id),
   };
 
